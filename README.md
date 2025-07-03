@@ -1,51 +1,39 @@
-<div align="center">
-  <img src="assets/bucketorm-logo.png" alt="BucketORM Logo" width="200">
-  <h1>BucketORM</h1>
-  <p><strong>A TypeScript-first ORM for Amazon S3 and S3-compatible storage</strong></p>
-  <p>💡 <em>Stop paying $50/month for databases to store simple JSON records.<br>Use S3 instead for ~$0.02/GB with zero compute costs.</em></p>
-</div>
+# BucketORM
 
----
+<img src="assets/bucketorm-logo.png" alt="BucketORM Logo" width="200">
 
-## 🚀 Why BucketORM?
+> A TypeScript-first ORM for Amazon S3 and S3-compatible storage solutions
 
-**Perfect for applications that need:**
-- Simple JSON document storage
-- Cost-effective data persistence
-- No complex relationships or joins
-- Easy deployment without database setup
-- TypeScript-first development experience
+[![npm version](https://badge.fury.io/js/bucketorm.svg)](https://badge.fury.io/js/bucketorm)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Real-world use cases:**
-- User profiles and preferences
-- Application settings and configurations
-- Event logs and analytics data
-- Content management systems
-- API caching and sessions
+Transform Amazon S3 and S3-compatible storage into a powerful, cost-effective database alternative for applications requiring simple JSON document storage.
 
----
+**Why BucketORM?**  
+Stop paying $50/month for databases to store simple JSON records. Use S3 instead for ~$0.02/GB with zero compute costs.
 
-## ✨ Features
+## Table of Contents
 
-🎯 **TypeScript-First**: Full type safety with multiple ways to define models  
-🔄 **Complete CRUD**: Create, Read, Update, Delete with familiar ORM syntax  
-✅ **Schema Validation**: Built-in Zod integration for data validation  
-🌐 **S3 Compatible**: Works with AWS S3, MinIO, Cloudflare R2, DigitalOcean Spaces  
-⚡ **Zero Dependencies**: Lightweight with minimal external dependencies  
-🏗️ **Developer Experience**: IDE autocompletion, error checking, and IntelliSense  
-🔧 **Local Development**: Easy setup with MinIO for local testing  
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [API Reference](#api-reference)
+- [Configuration](#configuration)
+- [Local Development](#local-development)
+- [Examples](#examples)
+- [Data Storage](#data-storage)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
 
----
-
-## ⚡ Quick Start
-
-### Installation
+## Installation
 
 ```bash
 npm install bucketorm
 ```
 
-### Basic Usage
+## Quick Start
 
 ```typescript
 import { BucketORM, BucketRecord } from 'bucketorm';
@@ -63,14 +51,14 @@ type User = BucketRecord<{
 const orm = new BucketORM({
   bucket: 'my-app-data',
   region: 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
 });
 
 // Create a model
 const userModel = orm.model<User>('user');
 
-// Use it like any ORM
+// CRUD operations
 const user = await userModel.create({
   data: {
     id: 'user-123',
@@ -82,65 +70,116 @@ const user = await userModel.create({
   }
 });
 
-// Query your data
 const foundUser = await userModel.findOne('user-123');
 const allUsers = await userModel.findMany();
 const activeUsers = await userModel.findMany({ where: { active: true } });
 
-// Update records
-await userModel.update('user-123', { 
-  data: { age: 31 } 
-});
-
-// Delete records
+await userModel.update('user-123', { data: { age: 31 } });
 await userModel.delete('user-123');
 ```
 
----
+## Features
 
-## 🏃 Local Development Setup
+- **TypeScript-First**: Complete type safety with multiple model definition approaches
+- **Familiar ORM Interface**: Standard CRUD operations with intuitive syntax
+- **Schema Validation**: Built-in Zod integration for data integrity
+- **Multi-Provider Support**: AWS S3, MinIO, Cloudflare R2, DigitalOcean Spaces
+- **Zero Runtime Dependencies**: Lightweight with minimal external requirements
+- **Local Development**: MinIO integration for offline development
+- **Cost Effective**: Leverage S3's pricing model for significant cost savings
 
-### 1. Clone and Install
+## API Reference
 
-```bash
-git clone <repository-url>
-cd bucketorm
-npm install
+### BucketORM
+
+The main class for interacting with your S3-compatible storage.
+
+#### Constructor
+
+```typescript
+new BucketORM(config: BucketORMConfig)
 ```
 
-### 2. Start MinIO (Local S3)
+**Parameters:**
+- `config.bucket` - S3 bucket name
+- `config.region` - AWS region
+- `config.accessKeyId` - AWS access key ID
+- `config.secretAccessKey` - AWS secret access key
+- `config.endpoint` - (Optional) Custom S3 endpoint for S3-compatible services
+- `config.forcePathStyle` - (Optional) Force path-style URLs
 
-```bash
-# Copy environment configuration
-cp .env.example .env
+#### Methods
 
-# Start MinIO with Docker
-docker-compose up -d
+##### `model<T>(name: string)`
+
+Create a model instance for CRUD operations.
+
+```typescript
+const userModel = orm.model<User>('user');
 ```
 
-**MinIO Console**: http://localhost:9090  
-**Credentials**: `minio` / `minio123` (from .env file)
+##### `schemaModel<T>(name: string, schema: SchemaDefinition)`
 
-### 3. Run Examples
+Create a model with schema validation.
 
-```bash
-# Basic CRUD operations
-npm run dev
-
-# Schema validation with Zod
-npm run dev:schema
-
-# TypeScript patterns showcase
-npm run dev:typescript
+```typescript
+const userModel = orm.schemaModel<User>('user', userSchema);
 ```
 
----
+### Model Methods
 
-## 🎯 TypeScript Patterns
+#### `create(input: CreateInput<T>)`
 
-BucketORM offers **four ways** to define your models:
+Create a new record.
 
-### 1. Manual Interface (Traditional)
+```typescript
+const user = await userModel.create({
+  data: {
+    id: 'user-123',
+    name: 'John Doe',
+    email: 'john@example.com'
+  }
+});
+```
+
+#### `findOne(id: string)`
+
+Find a single record by ID.
+
+```typescript
+const user = await userModel.findOne('user-123');
+```
+
+#### `findMany(options?: FindManyOptions<T>)`
+
+Find multiple records with optional filtering.
+
+```typescript
+const users = await userModel.findMany();
+const activeUsers = await userModel.findMany({ where: { active: true } });
+```
+
+#### `update(id: string, input: UpdateInput<T>)`
+
+Update an existing record.
+
+```typescript
+await userModel.update('user-123', { data: { age: 31 } });
+```
+
+#### `delete(id: string)`
+
+Delete a record.
+
+```typescript
+await userModel.delete('user-123');
+```
+
+### TypeScript Types
+
+#### Model Definition Approaches
+
+**1. Manual Interface**
 
 ```typescript
 interface User {
@@ -151,11 +190,9 @@ interface User {
   createdAt: Date;
   updatedAt: Date;
 }
-
-const userModel = orm.model<User>('user');
 ```
 
-### 2. BucketRecord Utility (Simplified)
+**2. BucketRecord Utility**
 
 ```typescript
 type User = BucketRecord<{
@@ -163,11 +200,9 @@ type User = BucketRecord<{
   email: string;
   age: number;
 }>;
-
-const userModel = orm.model<User>('user');
 ```
 
-### 3. Schema Inference (Recommended)
+**3. Schema-First with Validation**
 
 ```typescript
 import { z, InferModel, createSchemaDefinition } from 'bucketorm';
@@ -181,27 +216,11 @@ const userSchema = z.object({
 });
 
 type User = InferModel<typeof userSchema>;
-const userModel = orm.schemaModel<User>('user', createSchemaDefinition(userSchema));
-
-// Now with validation!
-await userModel.createWithValidation({ data: { ... } });
-```
-
-### 4. Utility Types
-
-```typescript
-import { ModelData, CreateInput, UpdateInput } from 'bucketorm';
-
-type UserData = ModelData<User>;         // For forms
-type UserCreateInput = CreateInput<User>; // For creation
-type UserUpdateInput = UpdateInput<User>; // For updates
 ```
 
 📖 **[Complete TypeScript Guide](./TYPESCRIPT.md)** - Advanced patterns and best practices
 
----
-
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -215,24 +234,24 @@ BUCKET_NAME=your-bucket-name
 # MinIO (Local Development)
 S3_ENDPOINT=http://localhost:9000
 S3_FORCE_PATH_STYLE=true
-
-# Alternative S3-compatible services
-# S3_ENDPOINT=https://your-r2-endpoint.com  # Cloudflare R2
-# S3_ENDPOINT=https://your-space.region.digitaloceanspaces.com  # DigitalOcean
 ```
 
-### Programmatic Configuration
+### Provider Examples
+
+#### AWS S3
 
 ```typescript
-// AWS S3 (Production)
 const orm = new BucketORM({
   bucket: 'production-bucket',
   region: 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
 });
+```
 
-// MinIO (Local Development)
+#### MinIO (Local Development)
+
+```typescript
 const orm = new BucketORM({
   bucket: 'dev-bucket',
   endpoint: 'http://localhost:9000',
@@ -241,20 +260,131 @@ const orm = new BucketORM({
   region: 'us-east-1',
   forcePathStyle: true,
 });
+```
 
-// Cloudflare R2
+#### Cloudflare R2
+
+```typescript
 const orm = new BucketORM({
   bucket: 'my-r2-bucket',
   endpoint: 'https://your-account.r2.cloudflarestorage.com',
-  accessKeyId: process.env.R2_ACCESS_KEY_ID,
-  secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+  secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
   region: 'auto',
 });
 ```
 
----
+## Local Development
 
-## 📊 Data Storage
+### Prerequisites
+
+- Node.js 16+
+- Docker and Docker Compose
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd bucketorm
+   npm install
+   ```
+
+2. Set up environment:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Start MinIO:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. Access MinIO Console at http://localhost:9090 (minio/minio123)
+
+### Development Scripts
+
+```bash
+# Build
+npm run build
+
+# Test
+npm test
+npm run test:watch
+
+# Lint and format
+npm run lint
+npm run format
+
+# Examples
+npm run dev              # Basic CRUD operations
+npm run dev:schema       # Schema validation
+npm run dev:typescript   # TypeScript patterns
+```
+
+## Examples
+
+### Basic Usage
+
+```typescript
+import { BucketORM, BucketRecord } from 'bucketorm';
+
+type Product = BucketRecord<{
+  name: string;
+  price: number;
+  category: string;
+}>;
+
+const orm = new BucketORM({ /* config */ });
+const products = orm.model<Product>('product');
+
+// Create
+const product = await products.create({
+  data: {
+    id: 'prod-1',
+    name: 'Laptop',
+    price: 999.99,
+    category: 'Electronics'
+  }
+});
+
+// Query
+const expensive = await products.findMany({
+  where: { price: { gt: 500 } }
+});
+```
+
+### With Schema Validation
+
+```typescript
+import { z, InferModel, createSchemaDefinition } from 'bucketorm';
+
+const productSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  price: z.number().positive(),
+  category: z.string(),
+});
+
+type Product = InferModel<typeof productSchema>;
+
+const products = orm.schemaModel<Product>('product', 
+  createSchemaDefinition(productSchema)
+);
+
+// Automatic validation
+await products.createWithValidation({ data: productData });
+```
+
+### Use Cases
+
+- **User Management**: Store user profiles, preferences, and settings
+- **Content Management**: Blog posts, articles, and media metadata
+- **Analytics**: Event logs, metrics, and reporting data
+- **Configuration**: Application settings and feature flags
+- **Session Storage**: User sessions and temporary data
+
+## Data Storage
 
 ### File Structure
 
@@ -264,11 +394,11 @@ s3://your-bucket/
 │   ├── user-123.json
 │   ├── user-456.json
 │   └── user-789.json
-├── post/
-│   ├── post-abc.json
-│   └── post-def.json
-└── profile/
-    └── profile-xyz.json
+├── product/
+│   ├── prod-abc.json
+│   └── prod-def.json
+└── order/
+    └── order-xyz.json
 ```
 
 ### JSON Format
@@ -286,30 +416,7 @@ s3://your-bucket/
 }
 ```
 
----
-
-## 🛠️ Development
-
-### Build and Test
-
-```bash
-# Build TypeScript
-npm run build
-
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
-```
-
-### Testing
+## Testing
 
 BucketORM uses a robust testing setup with proper isolation:
 
@@ -334,43 +441,24 @@ npm test
 
 The test setup automatically creates both development (`bucketorm-dev`) and test (`bucketorm-test`) buckets in MinIO.
 
-### Project Structure
+## Contributing
 
-```
-bucketorm/
-├── src/
-│   ├── core/           # Core ORM classes
-│   ├── adapters/       # Storage adapters
-│   ├── types/          # TypeScript definitions
-│   └── index.ts        # Main exports
-├── examples/           # Usage examples
-├── tests/              # Test files
-└── docs/               # Documentation
-```
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on:
 
----
+- Code of conduct
+- Development process
+- Submitting pull requests
+- Running tests
+- Reporting bugs
 
-## 🤝 Contributing
+## License
 
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
+[MIT](LICENSE) © BucketORM
 
 ---
 
-## 📄 License
+## Acknowledgments
 
-MIT License - see [LICENSE](./LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Inspired by [Prisma](https://prisma.io) for the developer experience
+- Inspired by [Prisma](https://prisma.io) for developer experience
 - Built with [Zod](https://zod.dev) for schema validation
 - Powered by [AWS SDK](https://aws.amazon.com/sdk-for-javascript/) for S3 operations
-
----
-
-<div align="center">
-  <p>Made with ❤️ for developers who want simple, cost-effective data storage</p>
-  <p>⭐ Star us on GitHub if BucketORM helps your project!</p>
-</div>
