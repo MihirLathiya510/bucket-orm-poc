@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://i.imgur.com/4r5MN8t.png" alt="BucketORM Logo" width="200">
+  <img src="assets/bucketorm-logo.png" alt="BucketORM Logo" width="200">
   <h1>BucketORM</h1>
   <p><strong>A TypeScript-first ORM for Amazon S3 and S3-compatible storage</strong></p>
   <p>💡 <em>Stop paying $50/month for databases to store simple JSON records.<br>Use S3 instead for ~$0.02/GB with zero compute costs.</em></p>
