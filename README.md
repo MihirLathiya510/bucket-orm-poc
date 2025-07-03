@@ -11,7 +11,7 @@
 Transform Amazon S3 and S3-compatible storage into a powerful, cost-effective database alternative for applications requiring simple JSON document storage.
 
 **Why BucketORM?**  
-Stop paying $50/month for databases to store simple JSON records. Use S3 instead for ~$0.02/GB with zero compute costs.
+Stop paying $50+/month for databases to store simple JSON records. Use S3 instead for ~$0.02/GB with zero compute costs.
 
 ## Table of Contents
 
