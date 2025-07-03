@@ -1,0 +1,61 @@
+{
+  "name": "bucketorm",
+  "version": "1.0.0",
+  "description": "A TypeScript-first ORM for Amazon S3 and S3-compatible storage",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx examples/basic.ts",
+    "dev:schema": "tsx examples/schema-validation.ts",
+    "dev:typescript": "tsx examples/typescript-patterns.ts",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "keywords": [
+    "orm",
+    "s3",
+    "aws",
+    "minio",
+    "typescript",
+    "database",
+    "storage",
+    "json",
+    "cloudflare-r2",
+    "digitalocean-spaces",
+    "serverless",
+    "bucket",
+    "nosql"
+  ],
+  "author": "BucketORM Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.470.0",
+    "@aws-sdk/s3-request-presigner": "^3.470.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mihir/bucketorm"
+  },
+  "bugs": {
+    "url": "https://github.com/mihir/bucketorm/issues"
+  },
+  "homepage": "https://github.com/mihir/bucketorm#readme"
+}

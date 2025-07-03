@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: bucketorm-minio
+    ports:
+      - "9000:9000"   # MinIO API
+      - "9090:9090"   # MinIO Console
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minio}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minio123}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Optional: Create buckets automatically
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minio}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minio123}
+      - BUCKET_NAME=${BUCKET_NAME:-bucketorm-dev}
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
+      /usr/bin/mc mb myminio/$$BUCKET_NAME --ignore-existing;
+      /usr/bin/mc mb myminio/bucketorm-test --ignore-existing;
+      /usr/bin/mc policy set public myminio/$$BUCKET_NAME;
+      /usr/bin/mc policy set public myminio/bucketorm-test;
+      exit 0;
+      "
+
+volumes:
+  minio_data: 
